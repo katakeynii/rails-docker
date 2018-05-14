@@ -21,14 +21,7 @@ RUN gem install rails
 RUN mkdir /akilee-base-docker
 
 WORKDIR /akilee-base-docker
-CMD ["rails", "new", ".", "--database=postgres"]
 
-COPY Gemfile /akilee-base-docker/Gemfile
-COPY Gemfile.lock /akilee-base-docker/Gemfile.lock
-
-# COPY package.json /akilee-base-docker/package.json
-
-RUN  bundle install
 COPY . /akilee-base-docker
 
 CMD [ "bash" ]
