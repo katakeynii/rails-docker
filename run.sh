@@ -39,16 +39,8 @@ then
 	sudo docker-compose run app rails new --help
 
 else
-	if [$1 != "mysql" && $1 != "postgresql" && $1 != "sqlite3" && $1 != "oracle"]
-	then
-		echo "====================================="
-		echo "=== ERROR DATABASE NOT SUPPORTED ===="
-		echo "====================================="
-		echo "only mysql, postgresql, sqlite3 and oracle are supported "
-	else
-			sudo docker-compose run app rails new . -d $1 $@
 
-	fi
+			sudo docker-compose run app rails new . $@
 fi
 sudo chmod 755 -R .	
 # sudo chown -R $USER:$USER .
