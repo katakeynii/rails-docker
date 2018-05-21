@@ -39,8 +39,7 @@ then
 	sudo docker-compose run app rails new --help
 
 else
-
-			sudo docker-compose run app rails new . $@
+			sudo docker-compose run app rails new . -d postgresql
 fi
 sudo chmod 755 -R .	
 # sudo chown -R $USER:$USER .
