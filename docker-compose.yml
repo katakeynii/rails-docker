@@ -9,7 +9,7 @@ services:
       dockerfile: ./docker/app/Dockerfile
       
     # command: ./docker/script/bundle-install.sh
-    command: ./docker/script/bundle-install.sh 
+    # command: ./docker/script/bundle-install.sh 
     entrypoint: ./docker-entrypoint.sh
     depends_on:
       - db
