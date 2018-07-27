@@ -10,7 +10,7 @@ services:
       
     # command: ./docker/script/bundle-install.sh
     # command: ./docker/script/bundle-install.sh 
-    # entrypoint: ./docker-entrypoint.sh
+    entrypoint: ./docker-entrypoint.sh
     depends_on:
       - db
       - box

@@ -2,7 +2,7 @@
 set -e
 
 if [ -f tmp/pids/server.pid ]; then
-  rm tmp/pids/server.pid
+  rm -rf tmp/pids/server.pid
 fi
 
-exec bundle exec "$@"
+# exec bundle exec "$@"
