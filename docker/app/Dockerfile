@@ -18,16 +18,20 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -\
 
 RUN gem install rails 
 
-RUN mkdir /akilee-base-docker
+ENV app /rails-base-docker
 
-WORKDIR /akilee-base-docker
+RUN mkdir $app
 
-COPY . /akilee-base-docker
+ENV BUNDLE_PATH /bundle-box
 
-CMD [ "bash" ]
+WORKDIR $app
+
+COPY . $app
+ADD . $app
+
+# ENTRYPOINT ["./docker-entrypoint.sh"]
 
 
-
-EXPOSE 3000
+# EXPOSE 3000
 
 CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
