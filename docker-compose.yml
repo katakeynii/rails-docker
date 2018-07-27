@@ -1,15 +1,28 @@
-version: '3'
+version: '3.2'
 volumes:
   postgres_data: {}
+  bundle_box: {}
 services:
   app:
     build:
       context: .
       dockerfile: ./docker/app/Dockerfile
+      
+    # command: ./docker/script/bundle-install.sh
+    command: ./docker/script/bundle-install.sh 
+    entrypoint: ./docker-entrypoint.sh
     depends_on:
       - db
+      - box
     volumes:
-      - .:/akilee-base-docker
+      - .:/rails-base-docker
+      - type: volume
+        source: bundle_box
+        target: /bundle-box
+    # volumes_from:
+    #   - box
+    # links:
+    #   - db
   db:
     image: postgres
     volumes:
@@ -21,8 +34,12 @@ services:
     depends_on:
       - app
     volumes:
-      - .:/akilee-base-docker
+      - .:/rails-base-docker
     ports:
       - 10010:80
 
+  box:
+    image: busybox
+    volumes:
+      - /bundle-box
 
