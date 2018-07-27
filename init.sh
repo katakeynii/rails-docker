@@ -9,7 +9,7 @@ echo "-"
 
 sudo chmod 755 -R .	
 sudo docker-compose build 
-sudo docker-compose app rails new . -d postgresql
+sudo docker-compose run app rails new . -d postgresql
 sudo mv default.database.yml ./config/database.yml
 # sudo docker-compose run app rails db:create db:migrate 
 sudo docker-compose up
