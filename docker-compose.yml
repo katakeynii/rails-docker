@@ -1,7 +1,10 @@
 version: '3.2'
 volumes:
   postgres_data: {}
-  bundle_box: {}
+  bundle_cache: {}
+  app-gems:
+  redis: {}
+
 services:
   app:
     build:
@@ -10,23 +13,28 @@ services:
       
     # command: ./docker/script/bundle-install.sh
     # command: ./docker/script/bundle-install.sh 
-    entrypoint: ./docker-entrypoint.sh
+    # entrypoint: ./docker-entrypoint.sh
     depends_on:
       - db
       - box
+      - redis
     volumes:
-      - .:/rails-base-docker
-      - type: volume
-        source: bundle_box
-        target: /bundle-box
-    # volumes_from:
-    #   - box
-    # links:
-    #   - db
+      - .:/dd-authentification-api
+      - bundle_cache:/bundle_cache
+    ports:
+      - 3001:3000
+    env_file:
+     - ./.env
+    environment:
+      - BUNDLE_PATH=/bundle_cache
+      - REDIS_URL=redis://redis:6379/0/cache
+
   db:
-    image: postgres
+    image: postgres:10.5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 15432:5432
   web:
     build:
       context: .
@@ -34,12 +42,23 @@ services:
     depends_on:
       - app
     volumes:
-      - .:/rails-base-docker
+      - .:/dd-authentification-api
     ports:
-      - 10010:80
+      - 5002:80
 
   box:
     image: busybox
+    tty: true
     volumes:
-      - /bundle-box
+      - bundle_cache:/bundle_cache
+
+  redis:
+    image: 'redis:4.0-alpine'
+    # command: redis-server --requirepass akileebox
+    command: redis-server
+    ports:
+      - 63800:6380
+    volumes:
+    - redis:/dd-authentification-api
+
 

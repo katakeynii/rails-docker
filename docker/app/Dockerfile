@@ -1,6 +1,6 @@
 FROM ruby:2.5.0
 
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev imagemagick curl
+RUN apt-get update -qq && apt-get install -y build-essential postgresql-plpython postgresql-client libpq-dev imagemagick curl
 
 RUN apt-get update \
     && apt-get install -y xvfb qt5-default libqt5webkit5-dev \
@@ -16,22 +16,31 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -\
     && apt-get update \
     && apt-get install -y yarn
 
-RUN gem install rails 
+ENV BUNDLE_PATH /bundle_cache
 
-ENV app /rails-base-docker
+RUN gem install rails 
+# RUN gem install bundler
+
+ENV app /dd-authentification-api
 
 RUN mkdir $app
 
-ENV BUNDLE_PATH /bundle-box
 
 WORKDIR $app
 
+# COPY Gemfile $app/Gemfile
+# COPY Gemfile.lock $app/Gemfile.lock
+
+# RUN set -ex && bundle --retry 3
+
 COPY . $app
-ADD . $app
+
+# RUN  bundle check || bundle install --path vendor/cache
+
+# ADD . $app
 
 # ENTRYPOINT ["./docker-entrypoint.sh"]
 
-
-# EXPOSE 3000
+EXPOSE 3000
 
 CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
