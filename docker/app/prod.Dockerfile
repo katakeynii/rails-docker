@@ -1,3 +1,4 @@
+# FROM phusion/passenger-ruby25
 FROM ruby:2.5.0
 
 RUN apt-get update -qq && apt-get install -y build-essential postgresql-plpython postgresql-client libpq-dev imagemagick curl
@@ -16,31 +17,28 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -\
     && apt-get update \
     && apt-get install -y yarn
 
+# Configuring main directory
 ENV BUNDLE_PATH /bundle_cache
+ENV APP /app
+RUN mkdir -p $APP
+WORKDIR $APP
 
-RUN gem install rails 
-# RUN gem install bundler
-
-ENV app /app
-
-RUN mkdir $app
+# Setting env up
+ENV RAILS_ENV='production'
+ENV RAKE_ENV='production'
 
 
-WORKDIR $app
+# Adding project files
+COPY Gemfile $APP/Gemfile
+COPY Gemfile.lock $APP/Gemfile.lock
 
-# COPY Gemfile $app/Gemfile
-# COPY Gemfile.lock $app/Gemfile.lock
+RUN set -ex && bundle --retry 3
+RUN bundle install --jobs 20 --retry 5 --without development test
 
-# RUN set -ex && bundle --retry 3
+COPY . $APP
 
-COPY . $app
-
-# RUN  bundle check || bundle install --path vendor/cache
-
-# ADD . $app
-
-# ENTRYPOINT ["./docker-entrypoint.sh"]
 
 EXPOSE 3000
 
-CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+# CMD ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]

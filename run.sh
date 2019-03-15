@@ -33,13 +33,7 @@ END
 echo "${red} $USAGE"
 echo "${reset}"
 
-if [ $1 == "--help" ]
-then
-	echo "showing rails new help ..."
-	sudo docker-compose run app rails new --help
-
-else
-			sudo docker-compose run app rails new . -d postgresql
-fi
+sudo touch .env
+sudo docker-compose run app rails new . -d postgresql
 sudo chmod 755 -R .	
 # sudo chown -R $USER:$USER .

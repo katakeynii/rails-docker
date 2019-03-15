@@ -9,10 +9,10 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
-      
+      dockerfile: ./docker/app/prod.Dockerfile
+
     # command: ./docker/script/bundle-install.sh
-    command: ./docker/script/bundle-install.sh 
+    command: ./docker/script/bundle-install.sh
     entrypoint: ./docker-entrypoint.sh
     depends_on:
       - db
@@ -22,12 +22,27 @@ services:
       - .:/app
       - bundle_cache:/bundle_cache
     ports:
-      - 3000:3000
+      - 3001:3000
     env_file:
      - ./.env
-    environment:
-      - BUNDLE_PATH=/bundle_cache
-      - REDIS_URL=redis://redis:6379/0/cache
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: ./docker/app/prod.Dockerfile
+    command: bundle exec sidekiq
+    entrypoint: ./docker-entrypoint.sh
+    depends_on:
+      - db
+      - box
+      - redis
+      - app
+    volumes:
+      - .:/app
+      - bundle_cache:/bundle_cache
+    env_file:
+     - ./.env
+
 
   db:
     image: postgres:10.5
@@ -35,16 +50,17 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - 25432:5432
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/web/Dockerfile
-  #   depends_on:
-  #     - app
-  #   volumes:
-  #     - .:/app
-  #   ports:
-  #     - 80:80
+#  web:
+#    build:
+#      context: .
+#      dockerfile: ./docker/web/Dockerfile
+#    depends_on:
+#      - app
+#    volumes:
+#      - .:/app
+#    ports:
+#      - 80:80
+#      - 443:443
 
   box:
     image: busybox
@@ -56,8 +72,8 @@ services:
     image: 'redis:4.0-alpine'
     # command: redis-server --requirepass akileebox
     command: redis-server
-    # ports:
-    #   - 63800:6380
+    ports:
+      - 63801:6379
     volumes:
     - redis:/app
 
