@@ -1,4 +1,4 @@
-version: '3.2'
+version: '3.3'
 volumes:
   postgres_data: {}
   bundle_cache: {}
@@ -9,42 +9,34 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
-      
-    # command: ./docker/script/bundle-install.sh
-    command: ./docker/script/bundle-install.sh 
-    entrypoint: ./docker-entrypoint.sh
+      dockerfile: ./docker/dev/Dockerfile
+      args:
+        - env=development
+        - bundle_opts=
     depends_on:
-      - db
       - box
+      - db
       - redis
     volumes:
       - .:/app
       - bundle_cache:/bundle_cache
     ports:
-      - 3000:3000
+      - 5000:5000
     env_file:
      - ./.env
     environment:
       - BUNDLE_PATH=/bundle_cache
       - REDIS_URL=redis://redis:6379/0/cache
+      - RAILS_ENV=development
+    restart: always
 
   db:
     image: postgres:10.5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # - /var/lib/postgresql/pgdata:/var/lib/postgresql/pgdata
     ports:
-      - 25432:5432
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/web/Dockerfile
-  #   depends_on:
-  #     - app
-  #   volumes:
-  #     - .:/app
-  #   ports:
-  #     - 80:80
+      - 5032:5432
 
   box:
     image: busybox
@@ -56,8 +48,6 @@ services:
     image: 'redis:4.0-alpine'
     # command: redis-server --requirepass akileebox
     command: redis-server
-    # ports:
-    #   - 63800:6380
     volumes:
     - redis:/app
 

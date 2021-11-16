@@ -6,75 +6,54 @@ volumes:
   redis: {}
 
 services:
-  app:
+  prod_app:
     build:
       context: .
-      dockerfile: ./docker/app/prod.Dockerfile
-
+      dockerfile: ./docker/prod/Dockerfile
     # command: ./docker/script/bundle-install.sh
-    command: ./docker/script/bundle-install.sh
-    entrypoint: ./docker-entrypoint.sh
+    # entrypoint: ./docker-entrypoint.sh
+      args:
+        - env=production
+        - bundle_opts=--without development test
     depends_on:
-      - db
-      - box
-      - redis
+      - prod_box
+      - prod_redis
     volumes:
       - .:/app
       - bundle_cache:/bundle_cache
     ports:
-      - 3001:3000
+      - 5002:3000
+      - 5001:5000
+
     env_file:
-     - ./.env
-
-  sidekiq:
-    build:
-      context: .
-      dockerfile: ./docker/app/prod.Dockerfile
-    command: bundle exec sidekiq
-    entrypoint: ./docker-entrypoint.sh
-    depends_on:
-      - db
-      - box
-      - redis
-      - app
-    volumes:
-      - .:/app
-      - bundle_cache:/bundle_cache
-    env_file:
-     - ./.env
+     - ./.env_prod
+    environment:
+      - BUNDLE_PATH=/bundle_cache
+      - REDIS_URL=redis://redis:6379/0/cache
+      # - RAILS_SECRET_KEYS=
 
 
-  db:
-    image: postgres:10.5
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - 25432:5432
-#  web:
-#    build:
-#      context: .
-#      dockerfile: ./docker/web/Dockerfile
-#    depends_on:
-#      - app
-#    volumes:
-#      - .:/app
-#    ports:
-#      - 80:80
-#      - 443:443
-
-  box:
+  prod_box:
     image: busybox
     tty: true
     volumes:
       - bundle_cache:/bundle_cache
 
-  redis:
+  prod_redis:
     image: 'redis:4.0-alpine'
     # command: redis-server --requirepass akileebox
     command: redis-server
-    ports:
-      - 63801:6379
+    # env_file:
+    #   - ./.env
+    # ports:
+    #   - 6379:6379
     volumes:
-    - redis:/app
+      - redis:/app
 
-
+  db:
+    image: postgres:10.5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # - /var/lib/postgresql/pgdata:/var/lib/postgresql/pgdata
+    ports:
+      - 5032:5432
