@@ -12,9 +12,8 @@ echo "${green}===== GENERATING A NEW RAILS APP ================="
 echo "${green}=================================================="
 
 mv .env.default .env
-mv default.database.yml config/database.yml
-docker-compose build
 docker-compose run app rails new . -d postgresql
+mv default.database.yml config/database.yml
 
 
 sudo rm -rf install.sh
