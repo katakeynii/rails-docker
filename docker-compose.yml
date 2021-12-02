@@ -36,7 +36,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # - /var/lib/postgresql/pgdata:/var/lib/postgresql/pgdata
     ports:
-      - 5032:5432
+      - "5432"
 
   box:
     image: busybox
